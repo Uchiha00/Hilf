@@ -1,0 +1,1865 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Benefit 4.6</title>
+    <link rel="icon" href="https://img.icons8.com/?size=100&id=84936&format=png&color=000000" type="image/png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-bg-hover: rgba(255, 255, 255, 0.22);
+            --glass-border: rgba(255, 255, 255, 0.25);
+            --glass-border-hover: rgba(255, 255, 255, 0.5);
+            --text-color: rgba(255, 255, 255, 0.9);
+            --danger-bg: rgba(239, 68, 68, 0.3);
+            --danger-border: rgba(239, 68, 68, 0.8);
+            --danger-glow: rgba(239, 68, 68, 0.5);
+            --active-glow: rgba(255, 255, 255, 0.4);
+            --primary-accent: #3b82f6;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background-color: #1a1c1b;
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            position: relative;
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Центрування по вертикалі */
+            padding: 30px 40px 100px 40px; /* Враховує плаваючий док знизу */
+            box-sizing: border-box;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        body::-webkit-scrollbar {
+            display: none;
+            width: 0;
+            height: 0;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('https://w.wallhaven.cc/full/gp/wallhaven-gpgyw3.jpg') center center/cover no-repeat;
+            z-index: -1;
+            filter: brightness(0.95);
+        }
+
+        /* -------------------------------------------------------------
+           ГОЛОВНИЙ КОНТЕЙНЕР КАТЕГОРІЙ (ВІДЦЕНТРОВАНИЙ ПО ВЕРТИКАЛІ)
+        -------------------------------------------------------------- */
+        .container {
+            width: 100%;
+            max-width: 1320px;
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            position: relative;
+            z-index: 1;
+            margin: auto 0; /* Гарантує ідеальне вертикальне центрування */
+        }
+
+        .category-wrapper {
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        /* Заголовок категорії з кнопками керування */
+        .category-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding: 0 6px;
+        }
+
+        .category-title-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .category {
+            font-size: 21px;
+            font-weight: 600;
+            color: #ffffff;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+            letter-spacing: 0.3px;
+        }
+
+        /* Акуратний лічильник кількості сайтів у категорії */
+        .category-badge-count {
+            font-size: 12px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 2px 10px;
+            border-radius: 12px;
+            color: rgba(255, 255, 255, 0.85);
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+        }
+
+        /* Кнопки дій з категорією (редагування та видалення) */
+        .category-actions {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            animation: fadeIn 0.25s ease;
+        }
+
+        body.settings-active .category-actions {
+            display: flex;
+        }
+
+        .cat-action-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            border-radius: 12px;
+            padding: 5px 12px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12.5px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            outline: none;
+        }
+
+        .cat-action-btn svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .cat-rename-btn:hover {
+            background: rgba(37, 99, 235, 0.3);
+            border-color: rgba(96, 165, 250, 0.7);
+            color: #93c5fd;
+            transform: translateY(-1px);
+        }
+
+        .cat-delete-btn:hover {
+            background: rgba(239, 68, 68, 0.3);
+            border-color: rgba(239, 68, 68, 0.8);
+            color: #ff8585;
+            transform: translateY(-1px);
+        }
+
+        /* Рядок закладок із плавною прокруткою (полоска прокручування прихована) */
+        .row {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            overflow-x: auto;
+            overflow-y: visible;
+            padding: 24px 8px 18px 8px;
+            margin-top: -12px;
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE та Edge */
+            scroll-behavior: smooth;
+        }
+
+        .row::-webkit-scrollbar {
+            display: none !important;
+            width: 0 !important;
+            height: 0 !important;
+            background: transparent !important;
+        }
+
+        .row::-webkit-scrollbar-thumb,
+        .row::-webkit-scrollbar-track {
+            display: none !important;
+            background: transparent !important;
+        }
+
+        /* -------------------------------------------------------------
+           КАРТКА ЗАКЛАДКИ (.link)
+        -------------------------------------------------------------- */
+        .link {
+            width: 215px;
+            height: 60px;
+            min-width: 215px;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 0 16px;
+            background: var(--glass-bg);
+            border-radius: 16px;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+            text-decoration: none;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-color);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--glass-border);
+            position: relative;
+            cursor: pointer;
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+
+        .link:hover {
+            background: var(--glass-bg-hover);
+            transform: translateY(-5px);
+            border-color: var(--glass-border-hover);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.38);
+            color: #ffffff;
+        }
+
+        body.settings-active .link:hover {
+            transform: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .link.dimmed {
+            opacity: 0.25;
+            filter: grayscale(0.8);
+            transform: scale(0.96);
+        }
+
+        .link.highlight-match {
+            border-color: #60a5fa !important;
+            box-shadow: 0 0 18px rgba(96, 165, 250, 0.5) !important;
+            background: rgba(59, 130, 246, 0.2) !important;
+        }
+
+        .icon {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            margin-right: 12px;
+            object-fit: contain;
+            filter: brightness(0) invert(1);
+            opacity: 0.85;
+            transition: transform 0.25s ease, opacity 0.25s ease;
+            pointer-events: none;
+        }
+
+        .link:hover .icon {
+            opacity: 1;
+            transform: scale(1.08);
+        }
+
+        .link-title {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            flex: 1;
+            pointer-events: none;
+        }
+
+        .link.is-dragging {
+            opacity: 0.35;
+            transform: scale(0.95);
+            border: 1px dashed rgba(255, 255, 255, 0.8);
+        }
+
+        .link.drag-over-prev {
+            border-left: 3px solid #ffffff;
+            transform: translateX(4px);
+        }
+
+        .link.drag-over-next {
+            border-right: 3px solid #ffffff;
+            transform: translateX(-4px);
+        }
+
+        /* Кнопки редагування та видалення блоку */
+        .card-actions {
+            display: none;
+            position: absolute;
+            top: -10px;
+            right: 6px;
+            gap: 6px;
+            z-index: 20;
+        }
+
+        body.settings-active .card-actions {
+            display: flex;
+        }
+
+        .card-action-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+        }
+
+        .card-action-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2.2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .card-action-btn.edit-btn {
+            background: #2563eb;
+            border: 1px solid #60a5fa;
+        }
+
+        .card-action-btn.edit-btn:hover {
+            background: #1d4ed8;
+            transform: scale(1.15);
+            border-color: #93c5fd;
+            box-shadow: 0 0 12px rgba(37, 99, 235, 0.85);
+        }
+
+        .card-action-btn.delete-btn {
+            background: rgba(30, 32, 35, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .card-action-btn.delete-btn:hover {
+            background: #dc2626;
+            transform: scale(1.15);
+            border-color: #f87171;
+            box-shadow: 0 0 12px rgba(220, 38, 38, 0.85);
+        }
+
+        body.settings-active .link {
+            border-style: solid;
+            animation: subtle-pulse 3s infinite alternate;
+        }
+
+        @keyframes subtle-pulse {
+            from { border-color: rgba(255, 255, 255, 0.3); }
+            to { border-color: rgba(255, 255, 255, 0.6); }
+        }
+
+        .add-card {
+            display: none;
+            width: 215px;
+            height: 60px;
+            min-width: 215px;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            border: 1px dashed rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(15px);
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            flex-shrink: 0;
+            box-sizing: border-box;
+        }
+
+        body.settings-active .add-card {
+            display: flex;
+        }
+
+        .add-card:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.9);
+            color: #ffffff;
+            transform: translateY(-4px);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+        }
+
+        .add-card svg {
+            width: 19px;
+            height: 19px;
+            stroke: currentColor;
+            stroke-width: 2.5;
+            fill: none;
+        }
+
+        /* -------------------------------------------------------------
+           НИЖНІЙ МАК-ДОК (FLOATING BOTTOM DOCK)
+        -------------------------------------------------------------- */
+        .bottom-dock-container {
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bottom-dock {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(20, 22, 26, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            border-radius: 26px;
+            padding: 8px 18px;
+            box-shadow: 0 16px 50px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .dock-btn {
+            height: 44px;
+            padding: 0 16px;
+            border-radius: 14px;
+            background: transparent;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: rgba(255, 255, 255, 0.85);
+            font-family: inherit;
+            font-size: 13.5px;
+            font-weight: 500;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            white-space: nowrap;
+        }
+
+        .dock-btn:hover {
+            background: rgba(255, 255, 255, 0.16);
+            border-color: rgba(255, 255, 255, 0.35);
+            color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .dock-divider {
+            width: 1px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .dock-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            transition: transform 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        /* Кошик */
+        .trash-btn .lid {
+            transform-origin: 3px 6px;
+            transition: transform 0.3s ease;
+        }
+
+        .trash-btn:hover .lid {
+            transform: rotate(-18deg) translateY(-2px);
+        }
+
+        .trash-btn.drag-target-hover {
+            background: var(--danger-bg) !important;
+            border-color: var(--danger-border) !important;
+            box-shadow: 0 0 25px var(--danger-glow) !important;
+            color: #ff6b6b !important;
+            transform: scale(1.08) !important;
+        }
+
+        .trash-btn.drag-target-hover .lid {
+            transform: rotate(-35deg) translateY(-4px);
+        }
+
+        /* Налаштування */
+        .settings-btn.active {
+            background: rgba(255, 255, 255, 0.28) !important;
+            border-color: rgba(255, 255, 255, 0.7) !important;
+            box-shadow: 0 0 16px var(--active-glow) !important;
+            color: #ffffff !important;
+        }
+
+        .settings-btn.active svg {
+            transform: rotate(90deg);
+        }
+
+        /* Пошук у доці */
+        .dock-search {
+            display: flex;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 14px;
+            padding: 0 14px;
+            height: 40px;
+            gap: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .dock-search:focus-within {
+            background: rgba(0, 0, 0, 0.45);
+            border-color: rgba(255, 255, 255, 0.55);
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.15);
+        }
+
+        .dock-search input {
+            background: transparent;
+            border: none;
+            outline: none;
+            color: white;
+            font-family: inherit;
+            font-size: 13.5px;
+            width: 150px;
+            transition: width 0.3s ease;
+        }
+
+        .dock-search input:focus {
+            width: 210px;
+        }
+
+        .dock-search input::placeholder {
+            color: rgba(255, 255, 255, 0.45);
+        }
+
+        .dock-search svg {
+            width: 16px;
+            height: 16px;
+            stroke: rgba(255, 255, 255, 0.65);
+            fill: none;
+            stroke-width: 2.2;
+        }
+
+        /* Кнопка додавання категорії в режимі редагування */
+        .dock-add-cat-btn {
+            display: none;
+        }
+
+        body.settings-active .dock-add-cat-btn {
+            display: flex;
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Статус-бейдж режиму редагування */
+        .dock-mode-badge {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            background: rgba(20, 22, 26, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 20px;
+            padding: 6px 14px;
+            color: white;
+            font-size: 13px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            animation: fadeIn 0.25s ease;
+        }
+
+        body.settings-active .dock-mode-badge {
+            display: flex;
+        }
+
+        .dock-mode-done {
+            background: rgba(255, 255, 255, 0.22);
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            border-radius: 14px;
+            padding: 4px 12px;
+            color: white;
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .dock-mode-done:hover {
+            background: rgba(255, 255, 255, 0.45);
+            transform: scale(1.05);
+        }
+
+        /* -------------------------------------------------------------
+           МОДАЛЬНІ ВІКНА ТА ОДНАКОВІ КНОПКИ
+        -------------------------------------------------------------- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-window {
+            width: 480px;
+            max-width: 90vw;
+            background: rgba(28, 30, 34, 0.88);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+            color: white;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            transform: scale(0.95);
+            animation: modalPop 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes modalPop {
+            to { transform: scale(1); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 22px;
+        }
+
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+            transition: color 0.2s;
+        }
+
+        .modal-close:hover {
+            color: #ffffff;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-group label {
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 12px;
+            padding: 12px 14px;
+            color: white;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .form-select option {
+            background: #252728;
+            color: white;
+        }
+
+        .form-input:focus, .form-select:focus {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.7);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-magic {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            border-radius: 12px;
+            padding: 0 18px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            font-family: inherit;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-magic:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: white;
+        }
+
+        .preview-box {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 16px;
+            padding: 15px;
+            margin-top: 10px;
+            margin-bottom: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .preview-box-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 500;
+        }
+
+        .preview-card-holder {
+            display: flex;
+            justify-content: center;
+        }
+
+        /* --- ОДНАКОВА ФОРМА ТА ВИГЛЯД ДВОХ КНОПОК У ЗВИЧАЙНОМУ СТАНІ --- */
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 14px;
+            margin-top: 26px;
+        }
+
+        .modal-actions .btn {
+            min-width: 140px;
+            height: 44px;
+            padding: 0 20px;
+            border-radius: 12px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-sizing: border-box;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            outline: none;
+            letter-spacing: 0.2px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: rgba(255, 255, 255, 0.85);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal-actions .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.22);
+            border-color: rgba(255, 255, 255, 0.5);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-actions .btn-primary:hover {
+            background: rgba(255, 255, 255, 0.35);
+            border-color: #ffffff;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 0 18px rgba(255, 255, 255, 0.4);
+        }
+
+        .modal-actions .btn-danger {
+            min-width: 140px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(220, 38, 38, 0.7);
+            border: 1px solid rgba(248, 113, 113, 0.8);
+            color: white;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-actions .btn-danger:hover {
+            background: rgba(220, 38, 38, 0.95);
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ГОЛОВНИЙ КОНТЕЙНЕР З КАТЕГОРІЯМИ ТА САЙТАМИ -->
+    <main class="container" id="mainContainer"></main>
+
+    <!-- НИЖНІЙ МАК-ДОК (ЗАКРІПЛЕНИЙ ЗНИЗУ ПО ЦЕНТРУ) -->
+    <div class="bottom-dock-container">
+        <!-- Режим налаштування статус -->
+        <div class="dock-mode-badge">
+            <span>Режим редагування</span>
+            <button class="dock-mode-done" id="doneEditBtn">Готово</button>
+        </div>
+
+        <nav class="bottom-dock" id="bottomDock">
+            <!-- Кнопка 1: Кошик для видалення перетягуванням або кліком -->
+            <button id="trashBtn" class="dock-btn trash-btn" title="Кошик: перетягніть сюди будь-який блок для видалення" aria-label="Кошик">
+                <svg viewBox="0 0 24 24">
+                    <path class="lid" d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"></path>
+                    <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0v11m4-11v11m4-11v11"></path>
+                </svg>
+                <span>Кошик</span>
+            </button>
+
+            <div class="dock-divider"></div>
+
+            <!-- Кнопка 2: Налаштування -->
+            <button id="settingsBtn" class="dock-btn settings-btn" title="Налаштування: редагування блоків, категорій та адрес" aria-label="Налаштування">
+                <svg viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"></path>
+                </svg>
+                <span>Налаштування</span>
+            </button>
+
+            <!-- Кнопка 3: Додати нову категорію (видима в режимі налаштувань) -->
+            <button class="dock-btn dock-add-cat-btn" onclick="openCategoryModal()" title="Створити нову категорію">
+                <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>
+                <span>+ Категорія</span>
+            </button>
+
+            <div class="dock-divider"></div>
+
+            <!-- Швидкий пошук у доці -->
+            <div class="dock-search">
+                <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>
+                <input type="text" id="filterInput" placeholder="Пошук або Google..." autocomplete="off">
+            </div>
+        </nav>
+    </div>
+
+    <!-- Модальне вікно додавання та редагування сайту -->
+    <div class="modal-overlay" id="editModal">
+        <div class="modal-window">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitleText">Додати новий сайт</h3>
+                <button class="modal-close" id="modalCloseBtn">&times;</button>
+            </div>
+            
+            <form id="siteForm" onsubmit="event.preventDefault(); saveSiteData();">
+                <input type="hidden" id="editItemId" value="">
+                
+                <div class="form-group">
+                    <label for="siteUrl">Адреса сайту (URL):</label>
+                    <div class="input-row">
+                        <input type="text" id="siteUrl" class="form-input" placeholder="https://example.com" required autocomplete="off">
+                        <button type="button" class="btn-magic" id="btnAutoDetect" title="Визначити назву та іконку за адресою">Авто</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="siteName">Назва закладки (коротко, з великої літери):</label>
+                    <input type="text" id="siteName" class="form-input" placeholder="Наприклад: ChatGPT" required autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="siteIcon">Посилання на ярличок (іконка автоматично стане біло-прозорою):</label>
+                    <input type="text" id="siteIcon" class="form-input" placeholder="https://... або генерується автоматично" autocomplete="off">
+                </div>
+
+                <div class="form-group">
+                    <label for="siteCategory">Категорія:</label>
+                    <select id="siteCategory" class="form-select"></select>
+                </div>
+
+                <div class="preview-box">
+                    <div class="preview-box-label">Попередній вигляд блоку:</div>
+                    <div class="preview-card-holder">
+                        <div class="link" style="pointer-events: none;">
+                            <img src="" id="previewIcon" class="icon" alt="icon">
+                            <span class="link-title" id="previewTitle">Сайт</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" id="modalCancelBtn">Скасувати</button>
+                    <button type="submit" class="btn btn-primary">Зберегти</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальне вікно підтвердження видалення САЙТУ -->
+    <div class="modal-overlay" id="deleteConfirmModal">
+        <div class="modal-window" style="width: 400px; text-align: center;">
+            <div style="font-size: 40px; margin-bottom: 12px;">🗑️</div>
+            <h3 class="modal-title" style="margin-bottom: 10px;">Видалити сайт?</h3>
+            <p id="deleteConfirmText" style="color: rgba(255,255,255,0.75); font-size: 14px; margin-bottom: 24px; line-height: 1.5;">
+                Ви дійсно хочете видалити цей сайт з панелі?
+            </p>
+            <div class="modal-actions" style="justify-content: center;">
+                <button type="button" class="btn btn-secondary" id="deleteCancelBtn">Скасувати</button>
+                <button type="button" class="btn btn-danger" id="deleteConfirmBtn">Видалити</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно підтвердження видалення КАТЕГОРІЇ -->
+    <div class="modal-overlay" id="deleteCatConfirmModal">
+        <div class="modal-window" style="width: 420px; text-align: center;">
+            <div style="font-size: 42px; margin-bottom: 12px;">⚠️</div>
+            <h3 class="modal-title" style="margin-bottom: 10px;">Видалити категорію?</h3>
+            <p id="deleteCatConfirmText" style="color: rgba(255,255,255,0.78); font-size: 14px; margin-bottom: 24px; line-height: 1.5;">
+                Ви дійсно хочете видалити цю категорію та всі сайти в ній?
+            </p>
+            <div class="modal-actions" style="justify-content: center;">
+                <button type="button" class="btn btn-secondary" onclick="closeDeleteCatModal()">Скасувати</button>
+                <button type="button" class="btn btn-danger" id="deleteCatBtnAction">Видалити все</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальне вікно додавання нової категорії -->
+    <div class="modal-overlay" id="newCategoryModal">
+        <div class="modal-window" style="width: 420px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="catModalTitle">Нова категорія</h3>
+                <button class="modal-close" onclick="closeCategoryModal()">&times;</button>
+            </div>
+            <input type="hidden" id="editingCatId" value="">
+            <div class="form-group">
+                <label for="newCategoryName">Назва категорії:</label>
+                <input type="text" id="newCategoryName" class="form-input" placeholder="Наприклад: Робота, Музика..." autocomplete="off">
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeCategoryModal()">Скасувати</button>
+                <button type="button" class="btn btn-primary" onclick="saveCategory()">Зберегти</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ДАНІ ЗА ЗАМОВЧУВАННЯМ
+        const DEFAULT_CATEGORIES = [
+            {
+                id: "cat_ai",
+                name: "Штучний Інтелект",
+                items: [
+                    { id: "ai_1", title: "ChatGPT", url: "https://chatgpt.com", icon: "https://img.icons8.com/?size=100&id=4KY3tfAid4dZ&format=png" },
+                    { id: "ai_2", title: "Grok AI", url: "https://x.com/i/grok", icon: "https://img.icons8.com/?size=100&id=W864KQKLKmWj&format=png&color=000000" },
+                    { id: "ai_3", title: "Gemini", url: "https://gemini.google.com/app?hl=uk", icon: "https://img.icons8.com/?size=100&id=Imv4VIewVo4o&format=png&color=000000" },
+                    { id: "ai_4", title: "Claude AI", url: "https://claude.ai/new", icon: "https://img.icons8.com/?size=100&id=XDigO1YmCwbW&format=png&color=000000" },
+                    { id: "ai_5", title: "Qwen", url: "https://chat.qwenlm.ai", icon: "https://img.icons8.com/?size=100&id=6U-iMUbTRTf-&format=png&color=000000" },
+                    { id: "ai_6", title: "DeepSeek", url: "https://chat.deepseek.com", icon: "https://img.icons8.com/?size=100&id=26346&format=png&color=000000" }
+                ]
+            },
+            {
+                id: "cat_movies",
+                name: "Фільми та тд",
+                items: [
+                    { id: "mov_1", title: "Netflix", url: "https://www.netflix.com", icon: "https://img.icons8.com/?size=100&id=L6IISLLpaYim&format=png" },
+                    { id: "mov_2", title: "Prime Video", url: "https://www.amazon.de/gp/video/storefront?_ref=atv_self_vtr_ret_web3", icon: "https://img.icons8.com/?size=100&id=CGsdsn9Kdj6o&format=png&color=000000" },
+                    { id: "mov_3", title: "Anitube", url: "https://anitube.in.ua", icon: "https://img.icons8.com/?size=100&id=69142&format=png&color=000000" },
+                    { id: "mov_4", title: "HdRezka", url: "https://rezka.si", icon: "https://img.icons8.com/?size=100&id=112972&format=png&color=000000" },
+                    { id: "mov_5", title: "UAKino", url: "https://uakino.me", icon: "https://img.icons8.com/?size=100&id=69067&format=png&color=000000" }
+                ]
+            },
+            {
+                id: "cat_fun",
+                name: "Розваги - різне",
+                items: [
+                    { id: "fun_1", title: "AppsTorrent", url: "https://appstorrent.ru", icon: "https://img.icons8.com/?size=100&id=9569&format=png&color=000000" },
+                    { id: "fun_2", title: "Torrent Igruha", url: "https://itorrents-igruha.org", icon: "https://img.icons8.com/?size=100&id=AUah5xXlasGs&format=png&color=000000" },
+                    { id: "fun_3", title: "Cobalt", url: "https://cobalt.meowing.de", icon: "https://img.icons8.com/?size=100&id=121371&format=png&color=000000" }
+                ]
+            },
+            {
+                id: "cat_tools",
+                name: "Креатив & Інструменти",
+                items: [
+                    { id: "tool_1", title: "GitHub", url: "https://github.com", icon: "https://img.icons8.com/?size=100&id=12599&format=png&color=000000" },
+                    { id: "tool_2", title: "Figma", url: "https://figma.com", icon: "https://img.icons8.com/?size=100&id=80340&format=png&color=000000" },
+                    { id: "tool_3", title: "Spotify", url: "https://open.spotify.com", icon: "https://img.icons8.com/?size=100&id=11116&format=png&color=000000" },
+                    { id: "tool_4", title: "Notion", url: "https://notion.so", icon: "https://img.icons8.com/?size=100&id=nvt5q8nN6v7m&format=png&color=000000" }
+                ]
+            }
+        ];
+
+        const STORAGE_KEY = 'hilf_dashboard_data_v4';
+        let categoriesData = [];
+
+        function loadData() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    categoriesData = JSON.parse(stored);
+                    if (!categoriesData.some(c => c.id === 'cat_tools')) {
+                        const newCat = DEFAULT_CATEGORIES.find(c => c.id === 'cat_tools');
+                        if (newCat) {
+                            categoriesData.push(JSON.parse(JSON.stringify(newCat)));
+                            saveData();
+                        }
+                    }
+                } else {
+                    categoriesData = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+                    saveData();
+                }
+            } catch (e) {
+                console.error("Помилка завантаження даних:", e);
+                categoriesData = JSON.parse(JSON.stringify(DEFAULT_CATEGORIES));
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(categoriesData));
+            } catch (e) {
+                console.error("Помилка збереження даних:", e);
+            }
+            updateStats();
+        }
+
+        let isSettingsMode = false;
+        let draggedItemInfo = null;
+        let pendingDeleteInfo = null;
+        let pendingDeleteCatId = null;
+        let dragOccurred = false;
+
+        const mainContainer = document.getElementById('mainContainer');
+        const trashBtn = document.getElementById('trashBtn');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const doneEditBtn = document.getElementById('doneEditBtn');
+        const filterInput = document.getElementById('filterInput');
+
+        const editModal = document.getElementById('editModal');
+        const modalTitleText = document.getElementById('modalTitleText');
+        const modalCloseBtn = document.getElementById('modalCloseBtn');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        const siteUrlInput = document.getElementById('siteUrl');
+        const siteNameInput = document.getElementById('siteName');
+        const siteIconInput = document.getElementById('siteIcon');
+        const siteCategorySelect = document.getElementById('siteCategory');
+        const editItemIdInput = document.getElementById('editItemId');
+        const btnAutoDetect = document.getElementById('btnAutoDetect');
+        const previewIcon = document.getElementById('previewIcon');
+        const previewTitle = document.getElementById('previewTitle');
+
+        const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+        const deleteConfirmText = document.getElementById('deleteConfirmText');
+        const deleteConfirmBtn = document.getElementById('deleteConfirmBtn');
+        const deleteCancelBtn = document.getElementById('deleteCancelBtn');
+
+        const deleteCatConfirmModal = document.getElementById('deleteCatConfirmModal');
+        const deleteCatConfirmText = document.getElementById('deleteCatConfirmText');
+        const deleteCatBtnAction = document.getElementById('deleteCatBtnAction');
+        const newCategoryModal = document.getElementById('newCategoryModal');
+
+        loadData();
+        renderDashboard();
+
+        function updateStats() {
+            // Резерв для оновлення статистики, якщо знадобиться
+        }
+
+        // ШВИДКИЙ ПОШУК / ФІЛЬТР / GOOGLE В ДОЦІ
+        filterInput.addEventListener('input', (e) => {
+            const query = e.target.value.trim().toLowerCase();
+            const cards = document.querySelectorAll('.link');
+
+            if (!query) {
+                cards.forEach(c => c.classList.remove('dimmed', 'highlight-match'));
+                return;
+            }
+
+            cards.forEach(c => {
+                const title = (c.querySelector('.link-title')?.textContent || '').toLowerCase();
+                const url = (c.getAttribute('href') || '').toLowerCase();
+
+                if (title.includes(query) || url.includes(query)) {
+                    c.classList.remove('dimmed');
+                    c.classList.add('highlight-match');
+                } else {
+                    c.classList.add('dimmed');
+                    c.classList.remove('highlight-match');
+                }
+            });
+        });
+
+        filterInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const query = filterInput.value.trim();
+                if (!query) return;
+
+                const matching = document.querySelector('.link.highlight-match');
+                if (matching) {
+                    window.open(matching.getAttribute('href'), '_blank');
+                } else {
+                    window.open('https://www.google.com/search?q=' + encodeURIComponent(query), '_blank');
+                }
+            }
+            if (e.key === 'Escape') {
+                filterInput.value = '';
+                filterInput.dispatchEvent(new Event('input'));
+                filterInput.blur();
+            }
+        });
+
+        // ПЕРЕМИКАННЯ РЕЖИМУ НАЛАШТУВАНЬ
+        settingsBtn.addEventListener('click', toggleSettingsMode);
+        doneEditBtn.addEventListener('click', toggleSettingsMode);
+
+        function toggleSettingsMode() {
+            isSettingsMode = !isSettingsMode;
+            document.body.classList.toggle('settings-active', isSettingsMode);
+            settingsBtn.classList.toggle('active', isSettingsMode);
+        }
+
+        // РЕНДЕР ДАШБОРДА
+        function renderDashboard() {
+            mainContainer.innerHTML = '';
+
+            categoriesData.forEach((category) => {
+                const catWrapper = document.createElement('div');
+                catWrapper.className = 'category-wrapper';
+                catWrapper.dataset.catId = category.id;
+
+                const catHeader = document.createElement('div');
+                catHeader.className = 'category-header';
+
+                const titleGroup = document.createElement('div');
+                titleGroup.className = 'category-title-group';
+                titleGroup.innerHTML = `
+                    <div class="category">${escapeHtml(category.name)}</div>
+                    <span class="category-badge-count">${category.items ? category.items.length : 0}</span>
+                `;
+
+                // Кнопки дій з категорією (перейменування та видалення)
+                const catActions = document.createElement('div');
+                catActions.className = 'category-actions';
+
+                const renameBtn = document.createElement('button');
+                renameBtn.className = 'cat-action-btn cat-rename-btn';
+                renameBtn.title = 'Перейменувати категорію';
+                renameBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
+                    <span>Змінити назву</span>
+                `;
+                renameBtn.addEventListener('click', () => openRenameCategoryModal(category.id));
+
+                const deleteCatBtn = document.createElement('button');
+                deleteCatBtn.className = 'cat-action-btn cat-delete-btn';
+                deleteCatBtn.title = 'Видалити цю категорію та всі її сайти';
+                deleteCatBtn.innerHTML = `
+                    <svg viewBox="0 0 24 24"><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0v11m4-11v11m4-11v11"></path><path d="M3 6h18M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg>
+                    <span>Видалити категорію</span>
+                `;
+                deleteCatBtn.addEventListener('click', () => promptDeleteCategory(category.id));
+
+                catActions.appendChild(renameBtn);
+                catActions.appendChild(deleteCatBtn);
+
+                catHeader.appendChild(titleGroup);
+                catHeader.appendChild(catActions);
+                catWrapper.appendChild(catHeader);
+
+                const row = document.createElement('div');
+                row.className = 'row';
+                row.dataset.catId = category.id;
+
+                row.addEventListener('wheel', (e) => {
+                    if (e.deltaY !== 0 && row.scrollWidth > row.clientWidth) {
+                        e.preventDefault();
+                        row.scrollLeft += e.deltaY * 1.3;
+                    }
+                }, { passive: false });
+
+                row.addEventListener('dragover', handleRowDragOver);
+                row.addEventListener('drop', handleRowDrop);
+
+                if (category.items) {
+                    category.items.forEach((item) => {
+                        const card = createCardElement(item, category.id);
+                        row.appendChild(card);
+                    });
+                }
+
+                const addCard = document.createElement('div');
+                addCard.className = 'add-card';
+                addCard.title = 'Додати новий сайт у цю категорію';
+                addCard.innerHTML = `
+                    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>
+                    <span>Додати сайт</span>
+                `;
+                addCard.addEventListener('click', () => openAddModal(category.id));
+                row.appendChild(addCard);
+
+                catWrapper.appendChild(row);
+                mainContainer.appendChild(catWrapper);
+            });
+
+            updateStats();
+        }
+
+        function createCardElement(item, catId) {
+            const a = document.createElement('a');
+            a.className = 'link';
+            a.href = item.url;
+            a.target = '_blank';
+            a.draggable = true;
+            a.dataset.id = item.id;
+            a.dataset.catId = catId;
+
+            const img = document.createElement('img');
+            img.className = 'icon';
+            img.src = item.icon || getFaviconUrl(item.url);
+            img.alt = item.title;
+            img.onerror = () => {
+                img.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>';
+            };
+
+            const titleSpan = document.createElement('span');
+            titleSpan.className = 'link-title';
+            titleSpan.textContent = item.title;
+
+            const actionsDiv = document.createElement('div');
+            actionsDiv.className = 'card-actions';
+
+            const editBtn = document.createElement('button');
+            editBtn.className = 'card-action-btn edit-btn';
+            editBtn.title = 'Редагувати сайт';
+            editBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>';
+            editBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                openEditModal(catId, item.id);
+            });
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'card-action-btn delete-btn';
+            delBtn.title = 'Видалити цей сайт';
+            delBtn.innerHTML = '<svg viewBox="0 0 24 24"><path d="M18 6L6 18M6 6l12 12"></path></svg>';
+            delBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                promptDelete(catId, item.id);
+            });
+
+            actionsDiv.appendChild(editBtn);
+            actionsDiv.appendChild(delBtn);
+
+            a.appendChild(img);
+            a.appendChild(titleSpan);
+            a.appendChild(actionsDiv);
+
+            a.addEventListener('click', (e) => {
+                if (dragOccurred) {
+                    e.preventDefault();
+                    dragOccurred = false;
+                    return;
+                }
+                if (isSettingsMode) {
+                    e.preventDefault();
+                    openEditModal(catId, item.id);
+                }
+            });
+
+            a.addEventListener('dragstart', handleCardDragStart);
+            a.addEventListener('dragend', handleCardDragEnd);
+            a.addEventListener('dragover', handleCardDragOver);
+            a.addEventListener('dragleave', handleCardDragLeave);
+            a.addEventListener('drop', handleCardDrop);
+
+            return a;
+        }
+
+        /* -------------------------------------------------------------
+           DRAG & DROP
+        -------------------------------------------------------------- */
+        function handleCardDragStart(e) {
+            dragOccurred = false;
+            const card = e.currentTarget;
+            draggedItemInfo = {
+                catId: card.dataset.catId,
+                itemId: card.dataset.id
+            };
+
+            card.classList.add('is-dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', JSON.stringify(draggedItemInfo));
+
+            setTimeout(() => {
+                dragOccurred = true;
+            }, 50);
+        }
+
+        function handleCardDragEnd(e) {
+            e.currentTarget.classList.remove('is-dragging');
+            trashBtn.classList.remove('drag-target-hover');
+            clearDragClasses();
+            setTimeout(() => {
+                dragOccurred = false;
+            }, 100);
+        }
+
+        function handleCardDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.dataTransfer.dropEffect = 'move';
+
+            const targetCard = e.currentTarget;
+            if (!draggedItemInfo || targetCard.dataset.id === draggedItemInfo.itemId) return;
+
+            const rect = targetCard.getBoundingClientRect();
+            const midpoint = rect.left + rect.width / 2;
+
+            clearDragClasses();
+            if (e.clientX < midpoint) {
+                targetCard.classList.add('drag-over-prev');
+            } else {
+                targetCard.classList.add('drag-over-next');
+            }
+        }
+
+        function handleCardDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over-prev', 'drag-over-next');
+        }
+
+        function handleCardDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const targetCard = e.currentTarget;
+            clearDragClasses();
+
+            if (!draggedItemInfo) return;
+
+            const targetCatId = targetCard.dataset.catId;
+            const targetItemId = targetCard.dataset.id;
+
+            if (draggedItemInfo.itemId === targetItemId) return;
+
+            const rect = targetCard.getBoundingClientRect();
+            const isBefore = e.clientX < (rect.left + rect.width / 2);
+
+            moveItem(draggedItemInfo.catId, draggedItemInfo.itemId, targetCatId, targetItemId, isBefore);
+            draggedItemInfo = null;
+        }
+
+        function handleRowDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleRowDrop(e) {
+            e.preventDefault();
+            if (!draggedItemInfo) return;
+
+            const targetCatId = e.currentTarget.dataset.catId;
+            moveItemToEnd(draggedItemInfo.catId, draggedItemInfo.itemId, targetCatId);
+            draggedItemInfo = null;
+        }
+
+        function clearDragClasses() {
+            document.querySelectorAll('.link').forEach(el => {
+                el.classList.remove('drag-over-prev', 'drag-over-next');
+            });
+        }
+
+        function moveItem(sourceCatId, sourceItemId, targetCatId, targetItemId, isBefore) {
+            const sourceCat = categoriesData.find(c => c.id === sourceCatId);
+            const targetCat = categoriesData.find(c => c.id === targetCatId);
+            if (!sourceCat || !targetCat) return;
+
+            const sourceIdx = sourceCat.items.findIndex(i => i.id === sourceItemId);
+            if (sourceIdx === -1) return;
+
+            const [item] = sourceCat.items.splice(sourceIdx, 1);
+
+            let targetIdx = targetCat.items.findIndex(i => i.id === targetItemId);
+            if (targetIdx === -1) {
+                targetCat.items.push(item);
+            } else {
+                if (!isBefore) targetIdx += 1;
+                targetCat.items.splice(targetIdx, 0, item);
+            }
+
+            saveData();
+            renderDashboard();
+        }
+
+        function moveItemToEnd(sourceCatId, sourceItemId, targetCatId) {
+            const sourceCat = categoriesData.find(c => c.id === sourceCatId);
+            const targetCat = categoriesData.find(c => c.id === targetCatId);
+            if (!sourceCat || !targetCat) return;
+
+            const sourceIdx = sourceCat.items.findIndex(i => i.id === sourceItemId);
+            if (sourceIdx === -1) return;
+
+            const [item] = sourceCat.items.splice(sourceIdx, 1);
+            targetCat.items.push(item);
+
+            saveData();
+            renderDashboard();
+        }
+
+        /* -------------------------------------------------------------
+           КОШИК: ПЕРЕТЯГУВАННЯ У ДОК
+        -------------------------------------------------------------- */
+        trashBtn.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            trashBtn.classList.add('drag-target-hover');
+        });
+
+        trashBtn.addEventListener('dragleave', () => {
+            trashBtn.classList.remove('drag-target-hover');
+        });
+
+        trashBtn.addEventListener('drop', (e) => {
+            e.preventDefault();
+            trashBtn.classList.remove('drag-target-hover');
+
+            if (draggedItemInfo) {
+                promptDelete(draggedItemInfo.catId, draggedItemInfo.itemId);
+                draggedItemInfo = null;
+            }
+        });
+
+        trashBtn.addEventListener('click', () => {
+            if (!isSettingsMode) {
+                toggleSettingsMode();
+            }
+        });
+
+        /* -------------------------------------------------------------
+           ВИДАЛЕННЯ САЙТУ
+        -------------------------------------------------------------- */
+        function promptDelete(catId, itemId) {
+            const cat = categoriesData.find(c => c.id === catId);
+            if (!cat) return;
+            const item = cat.items.find(i => i.id === itemId);
+            if (!item) return;
+
+            pendingDeleteInfo = { catId, itemId };
+            deleteConfirmText.innerHTML = `Ви дійсно хочете видалити закладку <br><strong style="color:white; font-size:16px;">«${escapeHtml(item.title)}»</strong>?`;
+            deleteConfirmModal.classList.add('active');
+        }
+
+        deleteConfirmBtn.addEventListener('click', () => {
+            if (pendingDeleteInfo) {
+                const { catId, itemId } = pendingDeleteInfo;
+                const cat = categoriesData.find(c => c.id === catId);
+                if (cat) {
+                    cat.items = cat.items.filter(i => i.id !== itemId);
+                    saveData();
+                    renderDashboard();
+                }
+            }
+            closeDeleteModal();
+        });
+
+        deleteCancelBtn.addEventListener('click', closeDeleteModal);
+
+        function closeDeleteModal() {
+            deleteConfirmModal.classList.remove('active');
+            pendingDeleteInfo = null;
+        }
+
+        /* -------------------------------------------------------------
+           ВИДАЛЕННЯ КАТЕГОРІЇ
+        -------------------------------------------------------------- */
+        function promptDeleteCategory(catId) {
+            const cat = categoriesData.find(c => c.id === catId);
+            if (!cat) return;
+
+            pendingDeleteCatId = catId;
+            const count = cat.items ? cat.items.length : 0;
+            deleteCatConfirmText.innerHTML = `
+                Ви дійсно хочете видалити категорію <br><strong style="color:white; font-size:17px;">«${escapeHtml(cat.name)}»</strong>?<br>
+                <span style="font-size:13px; color:#ff8585; display:inline-block; margin-top:8px;">
+                    Усі ${count} закладок у цій категорії також буде безповоротно видалено!
+                </span>
+            `;
+            deleteCatConfirmModal.classList.add('active');
+        }
+
+        deleteCatBtnAction.addEventListener('click', () => {
+            if (pendingDeleteCatId) {
+                categoriesData = categoriesData.filter(c => c.id !== pendingDeleteCatId);
+                saveData();
+                renderDashboard();
+            }
+            closeDeleteCatModal();
+        });
+
+        function closeDeleteCatModal() {
+            deleteCatConfirmModal.classList.remove('active');
+            pendingDeleteCatId = null;
+        }
+
+        /* -------------------------------------------------------------
+           ПЕРЕЙМЕНУВАННЯ ТА СТВОРЕННЯ КАТЕГОРІЇ
+        -------------------------------------------------------------- */
+        function openCategoryModal() {
+            document.getElementById('editingCatId').value = '';
+            document.getElementById('catModalTitle').textContent = 'Нова категорія';
+            document.getElementById('newCategoryName').value = '';
+            newCategoryModal.classList.add('active');
+            setTimeout(() => document.getElementById('newCategoryName').focus(), 100);
+        }
+
+        function openRenameCategoryModal(catId) {
+            const cat = categoriesData.find(c => c.id === catId);
+            if (!cat) return;
+
+            document.getElementById('editingCatId').value = cat.id;
+            document.getElementById('catModalTitle').textContent = 'Перейменувати категорію';
+            document.getElementById('newCategoryName').value = cat.name;
+            newCategoryModal.classList.add('active');
+            setTimeout(() => document.getElementById('newCategoryName').focus(), 100);
+        }
+
+        function closeCategoryModal() {
+            newCategoryModal.classList.remove('active');
+        }
+
+        function saveCategory() {
+            const name = document.getElementById('newCategoryName').value.trim();
+            if (!name) return;
+
+            const editingId = document.getElementById('editingCatId').value;
+            if (editingId) {
+                // Перейменування
+                const cat = categoriesData.find(c => c.id === editingId);
+                if (cat) cat.name = name;
+            } else {
+                // Створення нової
+                const newCat = {
+                    id: 'cat_' + Date.now(),
+                    name: name,
+                    items: []
+                };
+                categoriesData.push(newCat);
+            }
+
+            saveData();
+            renderDashboard();
+            closeCategoryModal();
+        }
+
+        /* -------------------------------------------------------------
+           АВТО-ВИЗНАЧЕННЯ
+        -------------------------------------------------------------- */
+        const BRAND_MAP = {
+            'chatgpt.com': 'ChatGPT',
+            'chat.openai.com': 'ChatGPT',
+            'openai.com': 'OpenAI',
+            'grok.x.ai': 'Grok AI',
+            'x.com': 'X (Twitter)',
+            'twitter.com': 'Twitter',
+            'gemini.google.com': 'Gemini',
+            'claude.ai': 'Claude AI',
+            'qwenlm.ai': 'Qwen',
+            'deepseek.com': 'DeepSeek',
+            'netflix.com': 'Netflix',
+            'amazon.de': 'Prime Video',
+            'amazon.com': 'Amazon',
+            'primevideo.com': 'Prime Video',
+            'anitube.in.ua': 'Anitube',
+            'rezka.si': 'HdRezka',
+            'uakino.me': 'UAKino',
+            'appstorrent.ru': 'AppsTorrent',
+            'itorrents-igruha.org': 'Torrent Igruha',
+            'cobalt.meowing.de': 'Cobalt',
+            'cobalt.tools': 'Cobalt',
+            'youtube.com': 'YouTube',
+            'youtu.be': 'YouTube',
+            'github.com': 'GitHub',
+            'reddit.com': 'Reddit',
+            'google.com': 'Google',
+            'wikipedia.org': 'Wikipedia',
+            'twitch.tv': 'Twitch',
+            'spotify.com': 'Spotify',
+            'open.spotify.com': 'Spotify',
+            'figma.com': 'Figma',
+            'notion.so': 'Notion',
+            'telegram.org': 'Telegram',
+            't.me': 'Telegram',
+            'discord.com': 'Discord',
+            'facebook.com': 'Facebook',
+            'instagram.com': 'Instagram'
+        };
+
+        function parseSiteDetails(rawUrl) {
+            if (!rawUrl || !rawUrl.trim()) return null;
+            let url = rawUrl.trim();
+            if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+            try {
+                const parsed = new URL(url);
+                let hostname = parsed.hostname.toLowerCase();
+                if (hostname.startsWith('www.')) hostname = hostname.slice(4);
+
+                let brand = null;
+                if (parsed.pathname.includes('/grok')) {
+                    brand = 'Grok AI';
+                } else if (BRAND_MAP[hostname]) {
+                    brand = BRAND_MAP[hostname];
+                } else {
+                    for (const [key, val] of Object.entries(BRAND_MAP)) {
+                        if (hostname === key || hostname.endsWith('.' + key)) {
+                            brand = val;
+                            break;
+                        }
+                    }
+                }
+
+                if (!brand) {
+                    const parts = hostname.split('.');
+                    let mainPart = parts[0];
+                    if (parts.length >= 2) {
+                        if (parts.length >= 3 && ['co', 'in', 'org', 'com', 'net', 'gov'].includes(parts[parts.length - 2])) {
+                            mainPart = parts[parts.length - 3] || parts[0];
+                        } else {
+                            mainPart = parts[parts.length - 2];
+                        }
+                    }
+                    brand = mainPart
+                        .replace(/[-_.]+/g, ' ')
+                        .trim()
+                        .split(' ')
+                        .filter(Boolean)
+                        .map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+                        .join(' ');
+                }
+
+                const iconUrl = `https://www.google.com/s2/favicons?domain=${hostname}&sz=128`;
+                return { url, hostname, brand, iconUrl };
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function getFaviconUrl(url) {
+            const details = parseSiteDetails(url);
+            return details ? details.iconUrl : 'https://img.icons8.com/?size=100&id=84936&format=png&color=000000';
+        }
+
+        btnAutoDetect.addEventListener('click', triggerAutoDetect);
+        siteUrlInput.addEventListener('blur', () => {
+            if (siteUrlInput.value && (!siteNameInput.value || !siteIconInput.value)) {
+                triggerAutoDetect();
+            }
+        });
+
+        function triggerAutoDetect() {
+            const details = parseSiteDetails(siteUrlInput.value);
+            if (details) {
+                siteUrlInput.value = details.url;
+                if (!siteNameInput.value || siteNameInput.dataset.autofilled === 'true') {
+                    siteNameInput.value = details.brand;
+                    siteNameInput.dataset.autofilled = 'true';
+                }
+                if (!siteIconInput.value || siteIconInput.dataset.autofilled === 'true') {
+                    siteIconInput.value = details.iconUrl;
+                    siteIconInput.dataset.autofilled = 'true';
+                }
+                updateLivePreview();
+            }
+        }
+
+        siteUrlInput.addEventListener('input', updateLivePreview);
+        siteNameInput.addEventListener('input', () => {
+            siteNameInput.dataset.autofilled = 'false';
+            updateLivePreview();
+        });
+        siteIconInput.addEventListener('input', () => {
+            siteIconInput.dataset.autofilled = 'false';
+            updateLivePreview();
+        });
+
+        function updateLivePreview() {
+            const name = siteNameInput.value.trim() || 'Сайт';
+            let icon = siteIconInput.value.trim();
+
+            if (!icon && siteUrlInput.value.trim()) {
+                const details = parseSiteDetails(siteUrlInput.value);
+                if (details) icon = details.iconUrl;
+            }
+
+            previewTitle.textContent = name;
+            previewIcon.src = icon || 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>';
+        }
+
+        /* -------------------------------------------------------------
+           МОДАЛЬНЕ ВІКНО ДОДАВАННЯ / РЕДАГУВАННЯ САЙТУ
+        -------------------------------------------------------------- */
+        function populateCategorySelect(selectedCatId) {
+            siteCategorySelect.innerHTML = '';
+            categoriesData.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.id;
+                opt.textContent = cat.name;
+                if (cat.id === selectedCatId) opt.selected = true;
+                siteCategorySelect.appendChild(opt);
+            });
+        }
+
+        function openAddModal(defaultCatId) {
+            editItemIdInput.value = '';
+            modalTitleText.textContent = 'Додати новий сайт';
+            siteUrlInput.value = '';
+            siteNameInput.value = '';
+            siteIconInput.value = '';
+            siteNameInput.dataset.autofilled = 'true';
+            siteIconInput.dataset.autofilled = 'true';
+            populateCategorySelect(defaultCatId);
+            updateLivePreview();
+            editModal.classList.add('active');
+            siteUrlInput.focus();
+        }
+
+        function openEditModal(catId, itemId) {
+            const cat = categoriesData.find(c => c.id === catId);
+            if (!cat) return;
+            const item = cat.items.find(i => i.id === itemId);
+            if (!item) return;
+
+            editItemIdInput.value = item.id;
+            modalTitleText.textContent = 'Редагувати сайт';
+            siteUrlInput.value = item.url;
+            siteNameInput.value = item.title;
+            siteIconInput.value = item.icon || '';
+            siteNameInput.dataset.autofilled = 'false';
+            siteIconInput.dataset.autofilled = 'false';
+
+            populateCategorySelect(catId);
+            updateLivePreview();
+            editModal.classList.add('active');
+            siteNameInput.focus();
+        }
+
+        function closeEditModal() {
+            editModal.classList.remove('active');
+        }
+
+        modalCloseBtn.addEventListener('click', closeEditModal);
+        modalCancelBtn.addEventListener('click', closeEditModal);
+
+        function saveSiteData() {
+            let url = siteUrlInput.value.trim();
+            if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+
+            let title = siteNameInput.value.trim();
+            if (!title) {
+                const d = parseSiteDetails(url);
+                title = d ? d.brand : 'Сайт';
+            }
+
+            let icon = siteIconInput.value.trim();
+            if (!icon) icon = getFaviconUrl(url);
+
+            const catId = siteCategorySelect.value;
+            const editingId = editItemIdInput.value;
+
+            if (editingId) {
+                let foundItem = null;
+                categoriesData.forEach(c => {
+                    const idx = c.items.findIndex(i => i.id === editingId);
+                    if (idx !== -1) {
+                        foundItem = c.items.splice(idx, 1)[0];
+                    }
+                });
+
+                if (foundItem) {
+                    foundItem.title = title;
+                    foundItem.url = url;
+                    foundItem.icon = icon;
+                    const targetCat = categoriesData.find(c => c.id === catId);
+                    if (targetCat) targetCat.items.push(foundItem);
+                }
+            } else {
+                const newItem = {
+                    id: 'site_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+                    title: title,
+                    url: url,
+                    icon: icon
+                };
+                const targetCat = categoriesData.find(c => c.id === catId);
+                if (targetCat) targetCat.items.push(newItem);
+            }
+
+            saveData();
+            renderDashboard();
+            closeEditModal();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeEditModal();
+                closeDeleteModal();
+                closeDeleteCatModal();
+                closeCategoryModal();
+            }
+        });
+    </script>
+</body>
+</html>
